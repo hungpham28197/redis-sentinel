@@ -1,0 +1,103 @@
+version: "3.8"
+networks:
+  my-network:
+    external: false
+
+services:
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=123
+    networks:
+      - my-network
+    ports:
+      - '6379'
+    deploy:
+      placement:
+        constraints: # Chỉ định node quản lý
+          - node.role == manager
+          - node.hostname == manager01
+  redis-slave:
+    image: 'bitnami/redis:latest'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis
+      - REDIS_MASTER_PASSWORD=123
+      - REDIS_PASSWORD=123
+    ports:
+      - '6379'
+    depends_on:
+      - redis
+    networks:
+      - my-network
+    deploy:
+      placement:
+        constraints: # Chỉ định node quản lý
+          - node.role == manager
+          - node.hostname == manager02
+  redis-sentinel-1:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_PASSWORD=123
+      - REDIS_SENTINEL_PASSWORD=123
+    depends_on:
+      - redis
+      - redis-slave
+    ports:
+      - '26379'
+    networks:
+      - my-network
+    deploy:
+      placement:
+        constraints: # Chỉ định node quản lý
+          - node.role == manager
+          - node.hostname == manager01
+  redis-sentinel-2:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_PASSWORD=123
+      - REDIS_SENTINEL_PASSWORD=123
+    depends_on:
+      - redis
+      - redis-slave
+    ports:
+      - '26379'
+    networks:
+      - my-network
+    deploy:
+      placement:
+        constraints: # Chỉ định node quản lý
+          - node.role == manager
+          - node.hostname == manager02
+  redis-sentinel-3:
+    image: 'bitnami/redis-sentinel:latest'
+    environment:
+      - REDIS_MASTER_PASSWORD=123
+      - REDIS_SENTINEL_PASSWORD=123
+    depends_on:
+      - redis
+      - redis-slave
+    ports:
+      - '26379'
+    networks:
+      - my-network
+    deploy:
+      placement:
+        constraints: # Chỉ định node quản lý
+          - node.role == worker
+          - node.hostname == worker01
+  golang:
+    image: manager02:5000/test-redis:latest
+    depends_on:
+      - redis-sentinel-1
+      - redis-sentinel-2
+      - redis-sentinel-3
+    environment:
+      - redis-sentinel-1=redis-sentinel-1
+      - redis-sentinel-2=redis-sentinel-2
+      - redis-sentinel-3=redis-sentinel-3
+    networks:
+      - my-network
+    ports:
+      - '8001:8001'
