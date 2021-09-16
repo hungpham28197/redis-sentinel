@@ -142,7 +142,7 @@ Value của key trong node redis master
 
 ![image](img/tat-redis-master.png)
 
-## Exec vào node redis-slave để check role xem để được promote lên thành master chưa
+## Exec vào node redis-slave để check role xem đã được promote lên thành master chưa
 
 ```
 redis-cli
