@@ -1,12 +1,15 @@
-## Triển 2 node redis: master-slave trên 2 máy ảo
+## Triển khai 2 node redis: master-slave trên 2 máy ảo
 
 - Redis master ở máy ảo manager01
 - Redis slave ở máy ảo manager02
 
 ## Triển khai 3 node redis sentinel trên 3 máy ảo(số node sentinel là lẻ và chạy độc lập trên các host)
 
-## Triển khai 1 app golang connect redis bẳng redis-sentinel sử dụng 
+## Triển khai 1 app golang connect redis bẳng redis-sentinel sử dụng
+
 github.com/go-redis/redis/v8
+
+Build image golang rồi đẩy lên registry manger02:5000 Chi tiết xem lại bài hướng dẫn của thầy Cường.
 
 Trong code có sử dụng 3 biến môi trường là địa chỉ của 3 node redis-sentinel
 
